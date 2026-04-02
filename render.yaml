@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: city-md
+    runtime: node
+    plan: free
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: npm start
+    healthCheckPath: /ping
+    envVars:
+      - key: OWNER_NUMBER
+        value: 263788114185
+      - key: APP_URL
+        value: https://city-md.onrender.com
+      - key: PORT
+        value: 3000

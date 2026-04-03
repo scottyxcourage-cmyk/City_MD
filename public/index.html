@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
+  <title>City_MD — ScottyTech | Pair Your Bot</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --city-glow: #00e5ff;
+      --city-deep: #0a0f1f;
+      --glass-bg: rgba(12, 18, 34, 0.75);
+      --glass-border: rgba(0, 229, 255, 0.35);
+      --accent-gold: #ffb347;
+      --text-bright: #f0f3fa;
+      --text-muted: #9aa4bf;
+      --card-modern: rgba(18, 25, 45, 0.8);
+      --success: #2dd4bf;
+      --error: #f87171;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 20%, #0c1122, #020408);
+      font-family: 'Inter', system-ui, 'Segoe UI', -apple-system, 'Roboto', 'Noto Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* TECH BACKGROUND — ANDROID INSPIRED NEON GRID + DIGITAL RAIN */
+    .tech-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background: #02040c;
+    }
+
+    .tech-grid {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      background-image: 
+        linear-gradient(rgba(0, 229, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.07) 1px, transparent 1px);
+      background-size: 42px 42px;
+      animation: gridShift 18s linear infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes gridShift {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(42px, 42px); }
+    }
+
+    .glow-scan {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00e5ff, #ffb347, transparent);
+      top: 30%;
+      left: -100%;
+      animation: scanMove 10s ease-in-out infinite;
+      filter: blur(1.5px);
+    }
+
+    .glow-scan:nth-child(2) {
+      top: 70%;
+      animation-delay: 5s;
+      width: 70%;
+    }
+
+    .digital-rain {
+      position: absolute;
+      color: #00e5ff1a;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      white-space: nowrap;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      animation: fall 12s linear infinite;
+      user-select: none;
+      font-weight: 500;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-100%); opacity: 0.12; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    /* SCOTTY LOADER — ANDROID MATERIAL STYLE, PERFECTLY SIZED INSIDE BOX */
+    .scotty-loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(1, 7, 15, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.9s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+      font-family: 'Google Sans', 'Inter', system-ui, sans-serif;
+    }
+
+    .loader-card {
+      text-align: center;
+      background: rgba(8, 16, 28, 0.9);
+      border-radius: 48px;
+      padding: 28px 36px;
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 229, 255, 0.2);
+      backdrop-filter: blur(16px);
+      width: auto;
+      min-width: 280px;
+      max-width: 380px;
+      margin: 0 24px;
+    }
+
+    .scotty-logo {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #00e5ff, #b45eff, #ffb347);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+      animation: androidPulse 1.4s infinite alternate;
+      white-space: nowrap;
+    }
+
+    @keyframes androidPulse {
+      0% { opacity: 0.8; text-shadow: 0 0 0px cyan; letter-spacing: 1px; }
+      100% { opacity: 1; text-shadow: 0 0 12px #00e5ff; letter-spacing: 1.5px; }
+    }
+
+    .android-progress {
+      width: 100%;
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: #1f2a3e;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00e5ff, #ffb347);
+      border-radius: 20px;
+      transition: width 0.05s linear;
+    }
+
+    .loader-status-text {
+      font-size: 0.7rem;
+      color: #8e9aaf;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .android-chip {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      font-size: 0.65rem;
+      color: #5f6c84;
+    }
+
+    /* MAIN CONTAINER (modern glassmorphism) */
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 580px;
+      padding: 28px 20px 100px;
+      margin: 20px auto;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 36px;
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+      transition: all 0.25s ease;
+      margin-bottom: 24px;
+    }
+
+    .card-padding {
+      padding: 26px 22px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-glow {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 18px;
+      background: radial-gradient(circle, #0f1a2f, #03070f);
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px;
+      border: 1.5px solid var(--city-glow);
+      box-shadow: 0 0 28px rgba(0, 229, 255, 0.4);
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .bot-name {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(120deg, #ffffff, #00e5ff, #ffb347);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .badge-modern {
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      padding: 5px 14px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--city-glow);
+      backdrop-filter: blur(4px);
+    }
+
+    .badge-modern.gold {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      background: rgba(255, 180, 70, 0.1);
+    }
+
+    /* stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-item {
+      background: rgba(0, 10, 25, 0.55);
+      border-radius: 28px;
+      padding: 12px 6px;
+      text-align: center;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--city-glow);
+      font-feature-settings: "tnum";
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    /* input & buttons */
+    .input-group {
+      margin-bottom: 24px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--city-glow);
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid #2a3a55;
+      padding: 14px 20px;
+      border-radius: 44px;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--city-glow);
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(95deg, #0f3b5e, #0080cc);
+      border: none;
+      padding: 14px;
+      border-radius: 48px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(0, 160, 255, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 200, 255, 0.4);
+    }
+
+    .status-box {
+      margin-top: 20px;
+      padding: 14px 18px;
+      border-radius: 32px;
+      font-size: 0.85rem;
+      display: none;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+    }
+
+    .status-box.info {
+      background: rgba(0, 150, 200, 0.18);
+      border-left: 4px solid var(--city-glow);
+      color: #caf0ff;
+    }
+
+    .status-box.success {
+      background: rgba(45, 212, 191, 0.18);
+      border-left: 4px solid var(--success);
+      color: #b6f5e5;
+    }
+
+    .status-box.error {
+      background: rgba(248, 113, 113, 0.18);
+      border-left: 4px solid var(--error);
+      color: #ffe0e0;
+    }
+
+    .code-box {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--city-glow);
+      border-radius: 56px;
+      padding: 24px 16px;
+      text-align: center;
+      margin-top: 24px;
+      display: none;
+    }
+
+    #codeVal {
+      font-size: 2.3rem;
+      font-weight: 800;
+      letter-spacing: 10px;
+      color: var(--city-glow);
+      font-family: 'Fira Mono', monospace;
+      text-shadow: 0 0 6px cyan;
+    }
+
+    .step-list {
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .step-list li {
+      counter-increment: step;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      align-items: center;
+    }
+
+    .step-list li::before {
+      content: counter(step);
+      background: rgba(0, 229, 255, 0.12);
+      width: 28px;
+      height: 28px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: var(--city-glow);
+      border: 1px solid var(--city-glow);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .channel-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(37, 211, 102, 0.1);
+      border: 1px solid #25D366;
+      border-radius: 60px;
+      padding: 12px 20px;
+      text-decoration: none;
+      color: #25D366;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: 0.2s;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .channel-button:hover {
+      background: #25D36620;
+      transform: scale(0.98);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 520px) {
+      .container { padding: 20px 16px 80px; }
+      .card-padding { padding: 20px 18px; }
+      .bot-name { font-size: 1.9rem; }
+      #codeVal { letter-spacing: 6px; font-size: 1.8rem; }
+      .loader-card { padding: 22px 24px; min-width: 260px; }
+      .scotty-logo { font-size: 1.8rem; white-space: normal; word-break: keep-all; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tech-bg">
+    <div class="tech-grid"></div>
+    <div class="glow-scan"></div>
+    <div class="glow-scan"></div>
+    <div id="rainContainer"></div>
+  </div>
+
+  <!-- SCOTTY LOADER (12 seconds + Android style, perfectly sized) -->
+  <div class="scotty-loader" id="scottyLoader">
+    <div class="loader-card">
+      <div class="scotty-logo">⚡ SCOTTYTECH ⚡</div>
+      <div class="android-progress">
+        <div class="progress-track">
+          <div class="progress-fill" id="loaderFill"></div>
+        </div>
+        <div class="loader-status-text" id="loaderMessage">initializing city kernel...</div>
+        <div class="android-chip">
+          <span>🤖 ANDROID OPTIMIZED</span> <span>🔐 ENCRYPTED PAIRING</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContent" style="opacity: 0; transition: opacity 1s ease;">
+    <div class="header">
+      <div class="logo-glow">🌆</div>
+      <div class="bot-name">CITY_MD</div>
+      <div class="tagline">The City Never Sleeps • Multi-User • ScottyTech Core</div>
+      <div class="badge-row">
+        <span class="badge-modern">⚙️ 50+ COMMANDS</span>
+        <span class="badge-modern">🌍 MULTI-USER</span>
+        <span class="badge-modern gold">🛠️ BUILT BY SCOTTY</span>
+      </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="glass-card">
+      <div class="card-padding">
+        <div style="font-size: 0.7rem; letter-spacing: 1.5px; color: var(--city-glow); margin-bottom: 12px;">📡 LIVE METRICS</div>
+        <div class="stats-grid">
+          <div class="stat-item"><div class="stat-number" id="stat-paired">0</div><div class="stat-label">Paired</div></div>
+          <div class="stat-item"><div class="stat-number" id="stat-uptime">--</div><div class="stat-label">Uptime</div></div>
+          <div class="stat-item"><div class="stat-number">50</div><div class="stat-label">Commands</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pair Card -->
+    <div class="glass-card">
+      <div class="card-padding">
+        <div style="font-size: 0.7rem; letter-spacing: 1.5px; color: var(--city-glow); margin-bottom: 12px;">🔗 PAIRING PROTOCOL</div>
+        <div class="input-group">
+          <label>📱 WhatsApp Number (country code, no '+')</label>
+          <input type="tel" id="phone" placeholder="e.g. 263788114185" maxlength="15" autocomplete="off"/>
+        </div>
+        <button class="btn-primary" id="pairBtn">⚡ GET PAIRING CODE</button>
+        <div class="status-box" id="statusBox"></div>
+        <div class="code-box" id="codeBox">
+          <div id="codeVal">—— ——</div>
+          <div class="code-hint" style="font-size: 0.7rem; margin-top: 10px;">Enter this 8-digit code in WhatsApp → Linked Devices → Link with phone number</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to Pair + WhatsApp Channel -->
+    <div class="glass-card">
+      <div class="card-padding">
+        <div style="font-size: 0.7rem; letter-spacing: 1.5px; color: var(--city-glow); margin-bottom: 12px;">📖 PAIRING MANUAL</div>
+        <ol class="step-list">
+          <li>Enter your WhatsApp number <b>with country code</b></li>
+          <li>Tap <b>Get Pairing Code</b> — city grid responds</li>
+          <li>Open WhatsApp → <b>Settings → Linked Devices → Link a Device</b></li>
+          <li>Select <b>"Link with phone number instead"</b></li>
+          <li>Type the <b>8-digit glowing code</b> above</li>
+          <li>Done! Send <b>.alive</b> to your bot to confirm 🎉</li>
+        </ol>
+        <a href="https://whatsapp.com/channel/0029Vb61NmpLikg7gNFyV23w" target="_blank" rel="noopener noreferrer" class="channel-button">
+          📢 JOIN OFFICIAL WHATSAPP CHANNEL →
+        </a>
+      </div>
+    </div>
+
+    <div class="footer">
+      City_MD v2.0 • <span style="color:var(--city-glow);">ScottyTech</span> • encrypted mesh • The City Never Sleeps 🌃
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ========== 1) EXTENDED LOADER: 12 SECONDS + PERFECT BOX SIZING ==========
+      const loaderOverlay = document.getElementById('scottyLoader');
+      const mainContainer = document.getElementById('mainContent');
+      const progressFill = document.getElementById('loaderFill');
+      const loaderMsgSpan = document.getElementById('loaderMessage');
+
+      const LOADER_DURATION = 12000; // 12 seconds
+      const STEP_MESSAGES = [
+        "booting ScottyTech v2.0 • android runtime",
+        "connecting to city mesh • encrypted channel",
+        "loading neural pair engine • 50+ commands",
+        "stabilizing multi-user daemon",
+        "syncing with WhatsApp gateway",
+        "almost ready • wake up City_MD",
+        "launching interface • welcome"
+      ];
+      
+      let startTime = performance.now();
+      let animFrame;
+      
+      function updateLoaderProgress(now) {
+        const elapsed = now - startTime;
+        let progressPercent = Math.min(100, (elapsed / LOADER_DURATION) * 100);
+        if (progressFill) progressFill.style.width = progressPercent + "%";
+        
+        if (loaderMsgSpan) {
+          let msgIndex = Math.floor((progressPercent / 100) * STEP_MESSAGES.length);
+          msgIndex = Math.min(STEP_MESSAGES.length - 1, msgIndex);
+          if (progressPercent >= 99) {
+            loaderMsgSpan.textContent = "finalizing • ScottyTech ready!";
+          } else {
+            loaderMsgSpan.textContent = STEP_MESSAGES[msgIndex] + " " + Math.floor(progressPercent) + "%";
+          }
+        }
+        
+        if (elapsed < LOADER_DURATION) {
+          animFrame = requestAnimationFrame(updateLoaderProgress);
+        } else {
+          if (progressFill) progressFill.style.width = "100%";
+          if (loaderMsgSpan) loaderMsgSpan.textContent = "redirecting • welcome to City_MD";
+          setTimeout(() => {
+            if (loaderOverlay) {
+              loaderOverlay.style.opacity = "0";
+              setTimeout(() => {
+                loaderOverlay.style.display = "none";
+                if (mainContainer) mainContainer.style.opacity = "1";
+              }, 800);
+            } else {
+              if (mainContainer) mainContainer.style.opacity = "1";
+            }
+          }, 200);
+        }
+      }
+      
+      startTime = performance.now();
+      animFrame = requestAnimationFrame(updateLoaderProgress);
+      
+      // ========== 2) TECH BACKGROUND: DIGITAL RAIN (android terminal vibe) ==========
+      const rainContainer = document.getElementById('rainContainer');
+      if (rainContainer) {
+        const symbols = ['0','1','C','I','T','Y','M','D','⚡','#','>','<','/','[',']','{','}','&'];
+        for (let i = 0; i < 80; i++) {
+          const drop = document.createElement('div');
+          drop.className = 'digital-rain';
+          drop.style.left = Math.random() * 100 + '%';
+          drop.style.animationDuration = 5 + Math.random() * 14 + 's';
+          drop.style.animationDelay = Math.random() * 12 + 's';
+          drop.style.opacity = 0.1 + Math.random() * 0.3;
+          drop.style.fontSize = 11 + Math.random() * 14 + 'px';
+          drop.style.fontWeight = '500';
+          const randomChar = symbols[Math.floor(Math.random() * symbols.length)];
+          drop.innerText = randomChar.repeat(2);
+          rainContainer.appendChild(drop);
+        }
+      }
+      
+      // ========== 3) STATS FETCH (preserved original logic) ==========
+      async function loadStats() {
+        try {
+          const resp = await fetch('/stats');
+          if (resp.ok) {
+            const data = await resp.json();
+            const pairedEl = document.getElementById('stat-paired');
+            if (pairedEl) pairedEl.textContent = data.totalPaired || 0;
+            const uptime = data.uptime || 0;
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            const uptimeEl = document.getElementById('stat-uptime');
+            if (uptimeEl) uptimeEl.textContent = hours + 'h' + minutes + 'm';
+          }
+        } catch (err) { /* silent fail */ }
+      }
+      loadStats();
+      setInterval(loadStats, 30000);
+      
+      // ========== 4) PAIR REQUEST (EXACT LOGIC PRESERVED) ==========
+      async function requestCode() {
+        const phoneInput = document.getElementById('phone');
+        const phoneRaw = phoneInput ? phoneInput.value.trim().replace(/\D/g, '') : '';
+        const btn = document.getElementById('pairBtn');
+        const statusDiv = document.getElementById('statusBox');
+        const codeBoxDiv = document.getElementById('codeBox');
+        
+        if (!phoneRaw || phoneRaw.length < 8) {
+          showStatus('error', '❌ Please enter a valid phone number (country code + number).');
+          return;
+        }
+        
+        if (btn) btn.disabled = true;
+        if (btn) btn.textContent = '⏳ Requesting from city core...';
+        showStatus('info', '🌆 Connecting to ScottyTech grid, fetching secure pairing code...');
+        if (codeBoxDiv) codeBoxDiv.style.display = 'none';
+        
+        try {
+          const response = await fetch('/pair', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: phoneRaw })
+          });
+          const data = await response.json();
+          if (data.code) {
+            const codeValSpan = document.getElementById('codeVal');
+            if (codeValSpan) codeValSpan.textContent = data.code;
+            if (codeBoxDiv) codeBoxDiv.style.display = 'block';
+            showStatus('success', '✅ Pairing code generated! Enter it in WhatsApp now (valid for limited time).');
+          } else {
+            showStatus('error', '❌ ' + (data.error || 'Unable to fetch code. Please retry.'));
+          }
+        } catch (err) {
+          console.warn(err);
+          showStatus('error', '❌ Network error. Check connection and try again.');
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = '⚡ GET PAIRING CODE';
+          }
+        }
+      }
+      
+      function showStatus(type, msg) {
+        const statusBox = document.getElementById('statusBox');
+        if (!statusBox) return;
+        statusBox.className = 'status-box ' + type;
+        statusBox.textContent = msg;
+        statusBox.style.display = 'block';
+      }
+      
+      const pairButton = document.getElementById('pairBtn');
+      if (pairButton) pairButton.onclick = requestCode;
+      const phoneField = document.getElementById('phone');
+      if (phoneField) {
+        phoneField.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') requestCode();
+        });
+      }
+      
+      // subtle code visual effect
+      const codeObserver = new MutationObserver(() => {
+        const codeBox = document.getElementById('codeBox');
+        if (codeBox && codeBox.style.display === 'block') {
+          codeBox.style.transform = 'scale(1.01)';
+          setTimeout(() => { if(codeBox) codeBox.style.transform = ''; }, 250);
+        }
+      });
+      const codeValSpan = document.getElementById('codeVal');
+      if (codeValSpan) codeObserver.observe(codeValSpan, { childList: true, characterData: true, subtree: true });
+      
+      // fallback safety: force hide loader after max 14 sec
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          if (loaderOverlay && loaderOverlay.style.display !== 'none') {
+            loaderOverlay.style.opacity = "0";
+            setTimeout(() => {
+              if(loaderOverlay) loaderOverlay.style.display = "none";
+              if(mainContainer) mainContainer.style.opacity = "1";
+            }, 400);
+            if(animFrame) cancelAnimationFrame(animFrame);
+          }
+        }, 14500);
+      });
+    })();
+  </script>
+</body>
+</html>
